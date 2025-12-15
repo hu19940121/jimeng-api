@@ -331,13 +331,13 @@ async function generateImagesInternal(
   logger.info(`当前积分状态: 总计=${totalCredit}, 赠送=${giftCredit}, 购买=${purchaseCredit}, VIP=${vipCredit}`);
 
   // 检查是否为多图生成模式 (jimeng-4.0/jimeng-4.1/jimeng-4.5 支持)
-  const isJimeng4xMultiImage = ['jimeng-4.0', 'jimeng-4.1', 'jimeng-4.5'].includes(userModel) && (
-    prompt.includes("连续") ||
-    prompt.includes("绘本") ||
-    prompt.includes("故事") ||
-    /\d+张/.test(prompt)
-  );
-
+  // const isJimeng4xMultiImage = ['jimeng-4.0', 'jimeng-4.1', 'jimeng-4.5'].includes(userModel) && (
+  //   prompt.includes("连续") ||
+  //   prompt.includes("绘本") ||
+  //   prompt.includes("故事") ||
+  //   /\d+张/.test(prompt)
+  // );
+const isJimeng4xMultiImage = ['jimeng-4.0', 'jimeng-4.1', 'jimeng-4.5'].includes(userModel);
   if (isJimeng4xMultiImage) {
     return await generateJimeng4xMultiImages(userModel, prompt, { ratio, resolution, sampleStrength, negativePrompt, intelligentRatio }, refreshToken);
   }
