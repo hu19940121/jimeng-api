@@ -42,7 +42,7 @@ export const IMAGE_MODELS: ModelInfo[] = [
     id: 'jimeng-4.5',
     name: 'Jimeng 4.5',
     description: '最新版本，支持2k/4k全部比例及智能比例',
-    regions: ['cn'],
+    regions: ['cn', 'us', 'hk', 'jp', 'sg'],
     type: 'image',
     supportsIntelligentRatio: true
   },
@@ -195,10 +195,10 @@ export const VIDEO_RATIOS: RatioOption[] = [
 // ==================== 默认值配置 ====================
 export const DEFAULT_IMAGE_MODEL: Record<Region, string> = {
   cn: 'jimeng-4.5',
-  us: 'jimeng-4.0',
-  hk: 'jimeng-4.0',
-  jp: 'jimeng-4.0',
-  sg: 'jimeng-4.0'
+  us: 'jimeng-4.5',
+  hk: 'jimeng-4.5',
+  jp: 'jimeng-4.5',
+  sg: 'jimeng-4.5'
 }
 
 export const DEFAULT_VIDEO_MODEL: Record<Region, string> = {

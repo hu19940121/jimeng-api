@@ -88,8 +88,7 @@ const handleSelect = (modelId: string) => {
 
 // 获取推荐标签
 function getRecommendedTag(model: ModelInfo): string | null {
-  if (model.id === 'jimeng-4.5' && props.region === 'cn') return '推荐'
-  if (model.id === 'jimeng-4.0' && props.region !== 'cn') return '推荐'
+  if (model.id === 'jimeng-4.5') return '推荐'
   if (model.id === 'jimeng-video-3.0') return '推荐'
   return null
 }
