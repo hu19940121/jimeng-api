@@ -177,6 +177,7 @@ async function handleGenerateSession() {
               <div class="text-xs text-gray-500 space-y-1">
                 <p>• 点击"自动获取 Session ID"按钮可自动注册美区账号并获取会话令牌</p>
                 <p>• 当生图或生视频提示额度不够时，请重新获取 Session ID</p>
+                <p>• 💡 免费积分（未开会员）使用 <span class="font-semibold">Jimeng 3.0</span> 模型速度最快，其他模型可能排队较慢</p>
                 <p>• ⚠️ 需要 jimeng-api 服务端能通过美国代理节点访问 dreamina.capcut.com</p>
               </div>
             </div>
