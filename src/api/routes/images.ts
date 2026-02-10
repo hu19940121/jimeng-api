@@ -6,6 +6,7 @@ import { generateImages, generateImageComposition } from "@/api/controllers/imag
 import { DEFAULT_IMAGE_MODEL } from "@/api/consts/common.ts";
 import { tokenSplit } from "@/api/controllers/core.ts";
 import util from "@/lib/util.ts";
+import { withAutoSession, getLastUsedNewSessionId } from "@/lib/auto-session-wrapper.ts";
 
 export default {
   prefix: "/v1/images",
@@ -46,7 +47,7 @@ export default {
       const finalModel = _.defaultTo(model, DEFAULT_IMAGE_MODEL);
 
       const responseFormat = _.defaultTo(response_format, "url");
-      const imageUrls = await generateImages(finalModel, prompt, {
+      const imageUrls = await withAutoSession(generateImages, finalModel, prompt, {
         ratio,
         resolution,
         sampleStrength,
@@ -63,9 +64,11 @@ export default {
           url,
         }));
       }
+      const newSessionId = getLastUsedNewSessionId();
       return {
         created: util.unixTimestamp(),
         data,
+        ...(newSessionId ? { new_session_id: newSessionId } : {}),
       };
     },
     
@@ -164,7 +167,7 @@ export default {
         : intelligentRatio;
 
       const responseFormat = _.defaultTo(response_format, "url");
-      const resultUrls = await generateImageComposition(finalModel, prompt, images, {
+      const resultUrls = await withAutoSession(generateImageComposition, finalModel, prompt, images, {
         ratio,
         resolution,
         sampleStrength: finalSampleStrength,
@@ -183,11 +186,13 @@ export default {
         }));
       }
 
+      const newSessionId = getLastUsedNewSessionId();
       return {
         created: util.unixTimestamp(),
         data,
         input_images: images.length,
         composition_type: "multi_image_synthesis",
+        ...(newSessionId ? { new_session_id: newSessionId } : {}),
       };
     },
   },

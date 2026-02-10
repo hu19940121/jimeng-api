@@ -5,6 +5,7 @@ import Response from '@/lib/response/Response.ts';
 import { tokenSplit } from '@/api/controllers/core.ts';
 import { generateVideo, DEFAULT_MODEL } from '@/api/controllers/videos.ts';
 import util from '@/lib/util.ts';
+import { withAutoSession, getLastUsedNewSessionId } from '@/lib/auto-session-wrapper.ts';
 
 export default {
 
@@ -70,7 +71,7 @@ export default {
             const finalFilePaths = filePaths.length > 0 ? filePaths : file_paths;
 
             // 生成视频
-            const videoUrl = await generateVideo(
+            const videoUrl = await withAutoSession(generateVideo,
                 model,
                 prompt,
                 {
@@ -78,10 +79,13 @@ export default {
                     resolution,
                     duration: finalDuration,
                     filePaths: finalFilePaths,
-                    files: request.files, // 传递上传的文件
+                    files: request.files,
                 },
                 token
             );
+
+            // 检查是否使用了新的 SessionID
+            const newSessionId = getLastUsedNewSessionId();
 
             // 根据response_format返回不同格式的结果
             if (response_format === "b64_json") {
@@ -92,7 +96,8 @@ export default {
                     data: [{
                         b64_json: videoBase64,
                         revised_prompt: prompt
-                    }]
+                    }],
+                    ...(newSessionId ? { new_session_id: newSessionId } : {}),
                 };
             } else {
                 // 默认返回URL
@@ -101,7 +106,8 @@ export default {
                     data: [{
                         url: videoUrl,
                         revised_prompt: prompt
-                    }]
+                    }],
+                    ...(newSessionId ? { new_session_id: newSessionId } : {}),
                 };
             }
         }

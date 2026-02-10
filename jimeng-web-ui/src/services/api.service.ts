@@ -40,6 +40,12 @@ class ApiService {
   private axiosInstance: AxiosInstance
   private config: ApiConfig | null = null
 
+  /**
+   * 当后端自动续期产生新 SessionID 时的回调
+   * 由外部（如 settings store）注入，避免循环依赖
+   */
+  onNewSessionId: ((newSessionId: string) => void) | null = null
+
   constructor() {
     this.axiosInstance = axios.create({
       timeout: 900000, // 15 minutes - matches backend polling timeout
@@ -67,8 +73,15 @@ class ApiService {
     // Response interceptor
     this.axiosInstance.interceptors.response.use(
       (response) => {
-        // 检查业务层错误（HTTP 200 但 code 不为 0）
         const data = response.data as Record<string, unknown> | undefined
+
+        // 检测后端自动续期返回的新 SessionID
+        if (data && typeof data.new_session_id === 'string' && data.new_session_id) {
+          console.log('[AutoSession] 检测到新的 Session ID:', data.new_session_id.substring(0, 10) + '...')
+          this.onNewSessionId?.(data.new_session_id)
+        }
+
+        // 检查业务层错误（HTTP 200 但 code 不为 0）
         if (data && typeof data.code === 'number' && data.code !== 0) {
           const message = this.extractErrorMessage(data) || '请求失败'
           return Promise.reject({

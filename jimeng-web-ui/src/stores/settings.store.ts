@@ -52,6 +52,14 @@ export const useSettingsStore = defineStore('settings', () => {
     } catch {
       // If parsing fails, use defaults
     }
+
+    // 注入自动续期回调：当后端返回新 SessionID 时，自动更新前端状态
+    apiService.onNewSessionId = (newId: string) => {
+      console.log('[AutoSession] 自动更新 Session ID:', newId.substring(0, 10) + '...')
+      sessionId.value = newId
+      region.value = 'us'
+      saveToStorage()
+    }
   }
 
   function saveToStorage() {
