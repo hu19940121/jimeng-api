@@ -19,24 +19,82 @@
 
 ### 必需依赖
 
-- **Node.js**: 18.0 或更高版本
-- **npm** 或 **yarn**: 包管理器
-- **jimeng-api**: 必须先启动 API 服务（使用 **[方式二：直接运行](../README.CN.md#方式二直接运行)**）
+- **jimeng-api**: 必须先启动 API 服务
 
-> ⚠️ **重要提示**: 
-> - jimeng-web-ui 依赖于 jimeng-api 项目提供的后端服务
-> - 如果想使用 UI 界面，API 服务**必须使用 [方式二：直接运行](../README.CN.md#方式二直接运行)**
-> - Docker 方式部署的 API 服务无法被 Web UI 正常访问
+#### Docker 部署（推荐）
+- **Docker**: 20.10 或更高版本
+- **Docker Compose**: V2
+
+#### 手动部署
+- **Node.js**: 20.19+ 或 22.12+（Vite 7 要求）
+- **npm** 或 **yarn**: 包管理器
 
 ## 🚀 快速开始
 
-### 1. 启动 API 服务
+### 方式一：Docker 一键部署（推荐 🌟）
 
-首先，确保 jimeng-api 服务已经启动（必须使用 [方式二](../README.CN.md#方式二直接运行)）：
+使用 Docker Compose 同时部署 API 后端 + Web UI 前端，统一入口，无需单独配置。
 
 ```bash
-# 
-# 在项目根目录 安装依赖
+# 在项目根目录执行
+cd jimeng-api
+
+# 一键构建并启动
+docker compose up -d --build
+```
+
+启动成功后，访问 **`http://localhost:5200`** 即可使用 Web UI，API 也在同一地址下。
+
+#### 架构说明
+
+```
+用户访问 http://host:5200
+         │
+    ┌────▼─────────────────────────┐
+    │   jimeng-web-ui (Nginx)      │
+    │                              │
+    │  /v1/*   ─▶ API 反向代理       │
+    │  /token/*─▶ API 反向代理       │
+    │  /*      ─▶ Vue SPA 静态文件   │
+    └───────┬──────────────────┘
+            │ Docker 内部网络
+    ┌───────▼──────────────────┐
+    │   jimeng-api (Node.js)        │
+    │   内部端口 :5100（不对外暴露）  │
+    └──────────────────────────┘
+```
+
+- **统一入口**：只暴露一个端口（5200），前后端同源，零跨域问题
+- **Nginx 反向代理**：`/v1/` 和 `/token/` 请求自动代理到后端 API
+- **SSE 支持**：流式聊天接口已配置 `proxy_buffering off`
+- **健康检查**：Web UI 会等待 API 健康后再启动
+
+#### 常用 Docker 命令
+
+```bash
+# 查看服务状态
+docker compose ps
+
+# 查看日志
+docker compose logs -f
+
+# 停止服务
+docker compose down
+
+# 重新构建并启动
+docker compose up -d --build
+```
+
+---
+
+### 方式二：手动部署
+
+#### 1. 启动 API 服务
+
+首先，确保 jimeng-api 服务已经启动：
+
+```bash
+# 在项目根目录安装依赖
 npm install
 
 # 编译项目
@@ -48,7 +106,7 @@ npm run dev
 
 API 服务将在 `http://localhost:5100` 启动。
 
-### 2. 启动 Web UI
+#### 2. 启动 Web UI
 
 在新的终端窗口中：
 
@@ -204,11 +262,8 @@ jimeng-web-ui/
 
 ### API 地址配置
 
-默认 API 地址为 `http://localhost:5100`。如需修改，请编辑 `src/config/index.ts`：
-
-```typescript
-export const API_BASE_URL = 'http://localhost:5100'
-```
+- **Docker 部署**：API 地址自动为当前页面 origin（如 `http://localhost:5200`），无需手动配置
+- **手动部署**：默认为 `http://localhost:5100`，可在设置页面中修改
 
 ### 开发服务器端口
 
