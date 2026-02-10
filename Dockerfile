@@ -27,15 +27,17 @@ RUN if [ -n "$VERSION" ]; then \
 # 构建应用
 RUN npm run build
 
-# 生产阶段
-FROM node:18-alpine AS production
+# 生产阶段 — 使用 Debian slim（Playwright 需要 glibc 及系统依赖，Alpine 不兼容）
+FROM node:18-slim AS production
 
 # 安装健康检查工具
-RUN apk add --no-cache wget
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends wget && \
+    rm -rf /var/lib/apt/lists/*
 
 # 创建非root用户
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S jimeng -u 1001
+RUN groupadd -g 1001 nodejs && \
+    useradd -m -u 1001 -g nodejs jimeng
 
 # 设置工作目录
 WORKDIR /app
@@ -47,6 +49,12 @@ COPY --from=builder /app/package-lock.json ./package-lock.json
 # 只安装生产依赖
 RUN npm ci --omit=dev --registry https://registry.npmmirror.com/ && \
     npm cache clean --force
+
+# 安装 Playwright Chromium 浏览器及其系统依赖（需要 root 权限）
+# 指定统一的浏览器安装路径，避免 root 安装 / jimeng 运行时路径不一致
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+RUN npx playwright install --with-deps chromium && \
+    chmod -R 755 /ms-playwright
 
 # 从构建阶段复制构建产物
 COPY --from=builder --chown=jimeng:nodejs /app/dist ./dist

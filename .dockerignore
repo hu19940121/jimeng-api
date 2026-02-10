@@ -44,6 +44,8 @@ coverage
 jest.config.*
 *.config.js
 *.config.ts
+# 但保留 tsup 构建配置（构建必需）
+!tsup.config.ts
 
 # 临时文件
 *.tmp

@@ -1,21 +1,21 @@
 services:
   jimeng-api:
     # 使用 GHCR 上的镜像（生产环境）
-    image: ghcr.io/iptag/jimeng-api:latest
+    # image: ghcr.io/iptag/jimeng-api:latest
     container_name: jimeng-api
     # 本地开发时可以取消注释下面的 build 配置
-    # image: jimeng-api:latest
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
+    image: jimeng-api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - "5100:5100"
-    #volumes:
-    #  # 挂载日志目录（确保权限正确）
-    #  - ./logs:/app/logs
-    #  # 挂载临时目录
-    #  - ./tmp:/app/tmp
+      - "5200:5100"
+    volumes:
+     # 挂载日志目录（确保权限正确）
+     - ./logs:/app/logs
+     # 挂载临时目录
+     - ./tmp:/app/tmp
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:5100/ping"]
       interval: 15s
