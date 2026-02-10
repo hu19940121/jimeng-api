@@ -262,20 +262,20 @@ export const VIDEO_RATIOS: RatioOption[] = [
 
 // ==================== 默认值配置 ====================
 export const DEFAULT_IMAGE_MODEL: Record<Region, string> = {
-  cn: 'jimeng-4.5',
-  us: 'jimeng-4.5',
-  hk: 'jimeng-4.5',
-  jp: 'jimeng-4.5',
-  sg: 'jimeng-4.5'
+  cn: 'jimeng-3.0',
+  us: 'jimeng-3.0',
+  hk: 'jimeng-3.0',
+  jp: 'jimeng-3.0',
+  sg: 'jimeng-3.0'
 }
 
 // 默认视频模型改为 jimeng-video-3.5-pro（README 标记为 Default）
 export const DEFAULT_VIDEO_MODEL: Record<Region, string> = {
-  cn: 'jimeng-video-3.5-pro',
-  us: 'jimeng-video-3.5-pro',
-  hk: 'jimeng-video-3.5-pro',
-  jp: 'jimeng-video-3.5-pro',
-  sg: 'jimeng-video-3.5-pro'
+  cn: 'jimeng-video-3.0',
+  us: 'jimeng-video-3.0',
+  hk: 'jimeng-video-3.0',
+  jp: 'jimeng-video-3.0',
+  sg: 'jimeng-video-3.0'
 }
 
 // ==================== 工具函数 ====================

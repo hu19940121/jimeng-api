@@ -41,7 +41,7 @@ const prompt = ref('')
 const negativePrompt = ref('')
 const model = ref(savedState.model || getDefaultImageModel(settingsStore.region))
 const ratio = ref(savedState.ratio || '1:1')
-const resolution = ref(savedState.resolution || '2k')
+const resolution = ref(savedState.resolution || '1k')
 const intelligentRatio = ref(savedState.intelligentRatio || false)
 
 // 保存表单状态到 localStorage
