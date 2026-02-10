@@ -42,14 +42,15 @@ export interface RatioOption {
 
 // ==================== 图像生成模型 ====================
 export const IMAGE_MODELS: ModelInfo[] = [
-  {
-    id: 'jimeng-4.5',
-    name: 'Jimeng 4.5',
-    description: '最新版本，支持2k/4k全部比例及智能比例',
-    regions: ['cn', 'us', 'hk', 'jp', 'sg'],
-    type: 'image',
-    supportsIntelligentRatio: true
-  },
+  // ⚠️ 暂时禁用：调用该模型会报服务器处理失败
+  // {
+  //   id: 'jimeng-4.5',
+  //   name: 'Jimeng 4.5',
+  //   description: '最新版本，支持2k/4k全部比例及智能比例',
+  //   regions: ['cn', 'us', 'hk', 'jp', 'sg'],
+  //   type: 'image',
+  //   supportsIntelligentRatio: true
+  // },
   {
     id: 'jimeng-4.1',
     name: 'Jimeng 4.1',
@@ -144,15 +145,16 @@ export const VIDEO_MODELS: ModelInfo[] = [
     durationOptions: [5, 10, 15],
     supportsResolution: false
   },
-  {
-    id: 'jimeng-video-3.5-pro',
-    name: 'Jimeng Video 3.5 Pro',
-    description: '专业版 v3.5，全站通用（默认）',
-    regions: ['cn', 'us', 'hk', 'jp', 'sg'],
-    type: 'video',
-    durationOptions: [5, 10, 12],
-    supportsResolution: false
-  },
+  // ⚠️ 暂时禁用：调用该模型会报服务器处理失败
+  // {
+  //   id: 'jimeng-video-3.5-pro',
+  //   name: 'Jimeng Video 3.5 Pro',
+  //   description: '专业版 v3.5，全站通用（默认）',
+  //   regions: ['cn', 'us', 'hk', 'jp', 'sg'],
+  //   type: 'video',
+  //   durationOptions: [5, 10, 12],
+  //   supportsResolution: false
+  // },
   {
     id: 'jimeng-video-veo3',
     name: 'Veo3',
