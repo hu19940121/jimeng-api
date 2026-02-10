@@ -30,7 +30,6 @@ exclude_list.txt
 *.swp
 *.swo
 .claude
-.kiro
 
 # OS
 .DS_Store
@@ -56,3 +55,4 @@ coverage/
 tmp/
 temp/
 jimeng-*.md
+.ace-tool/

@@ -2,7 +2,9 @@
 
 🎨 **免费的AI图像和视频生成API服务** - 基于即梦AI（国内站）和dreamina（国际站）的逆向工程实现。
 
-[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/) [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/) [![Docker](https://img.shields.io/badge/Docker-支持-blue.svg)](https://www.docker.com/) [![License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/) [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/) [![Docker](https://img.shields.io/badge/Docker-支持-blue.svg)](https://www.docker.com/) [![License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE) [![Telegram](https://img.shields.io/badge/Telegram-群组-blue.svg?logo=telegram)](https://t.me/jimeng_api)
+
+> 💬 **加入 Telegram 交流群**: [https://t.me/jimeng_api](https://t.me/jimeng_api) — 问题反馈、使用交流、功能讨论。
 
 ## ✨ 特性
 
@@ -64,9 +66,11 @@ curl -X POST http://localhost:5100/v1/images/generations \
 > - **日本站**：需要添加 **jp-** 前缀，如 `Bearer jp-your_session_id`
 > - **新加坡站**: 需要添加 **sg-** 前缀，如 `Bearer sg-your_session_id`
 >
-> **注意2**: 国内站和国际站现已同时支持*文生图*和*图生图*，国际站添加nanobanana和nanobananapro模型。
+> **注意2**: 支持在 Token 中绑定代理（HTTP/SOCKS5等），详见 [Token 绑定代理功能](#token-绑定代理功能-新)。
 >
-> **注意3**: 国际站使用nanobanana模型时的分辨率规则:
+> **注意3**: 国内站和国际站现已同时支持*文生图*和*图生图*，国际站添加nanobanana和nanobananapro模型。
+>
+> **注意4**: 国际站使用nanobanana模型时的分辨率规则:
 > - **美国站 (us-)**: 生成的图像固定为 **1024x1024** 和 **2k** 清晰度，忽略用户传入的 ratio 和 resolution 参数
 > - **香港/日本/新加坡站 (hk-/jp-/sg-)**: 强制使用 **1k** 清晰度，但支持自定义 ratio 参数（如 16:9、4:3 等）
 
@@ -234,6 +238,8 @@ Claude: [自动调用 skill,生成图片并保存到 /pic 目录]
 - `negative_prompt` (string, 可选): 负面提示词
 - `sample_strength` (number, 可选): 采样强度 (0.0-1.0)
 - `response_format` (string, 可选): 响应格式 ("url" 或 "b64_json")
+
+> **⏱️ 超时设置**: 图像生成最长等待 30 分钟。高峰期可能需要排队，请耐心等待。
 
 ```bash
 # 默认参数（ratio: "1:1", resolution: "2k"）
@@ -431,8 +437,13 @@ A: 可以。现在支持直接上传本地文件。请参考上方的“本地�
 - `model` (string): 使用的视频模型名称。
 - `prompt` (string): 视频内容的文本描述。
 - `ratio` (string, 可选): 视频比例，默认为 `"1:1"`。支持的比例：`1:1`, `4:3`, `3:4`, `16:9`, `9:16`, `21:9`。**注意**：在图生视频模式下（有图片输入时），此参数将被忽略，视频比例由输入图片的实际比例决定。
-- `resolution` (string, 可选): 视频分辨率，默认为 `"720p"`。支持的分辨率：`720p`, `1080p`。
-- `duration` (number, 可选): 视频时长（秒），默认为 `5`。支持的值：`5`（5秒），`10`（10秒）。
+- `resolution` (string, 可选): 视频分辨率，默认为 `"720p"`。支持的分辨率：`720p`, `1080p`。**注意**：仅 `jimeng-video-3.0` 和 `jimeng-video-3.0-fast` 支持此参数，其他模型会忽略。
+- `duration` (number, 可选): 视频时长（秒）。不同模型支持的值：
+  - `jimeng-video-veo3` / `jimeng-video-veo3.1`: `8`（固定）
+  - `jimeng-video-sora2`: `4`（默认）、`8`、`12`
+  - `jimeng-video-4.0-pro` / `jimeng-video-4.0`: `5`（默认）、`10`、`15`
+  - `jimeng-video-3.5-pro`: `5`（默认）、`10`、`12`
+  - 其他模型: `5`（默认）、`10`
 - `file_paths` (array, 可选): 一个包含图片URL的数组，用于指定视频的**首帧**（数组第1个元素）和**尾帧**（数组第2个元素）。
 - `[file]` (file, 可选): 通过 `multipart/form-data` 方式上传的本地图片文件（最多2个），用于指定视频的**首帧**和**尾帧**。字段名可以任意，例如 `image1`。
 - `response_format` (string, 可选): 响应格式，支持 `url` (默认) 或 `b64_json`。
@@ -444,13 +455,19 @@ A: 可以。现在支持直接上传本地文件。请参考上方的“本地�
 > - **重要**：一旦提供图片输入（图生视频或首尾帧视频），`ratio` 参数将被忽略，视频比例将由输入图片的实际比例决定。`resolution` 参数仍然有效。
 
 **支持的视频模型**:
+- `jimeng-video-4.0-pro` - Seedance 2.0 专业版，仅国内站支持，支持15秒时长 **（最新）**
+- `jimeng-video-4.0` - Seedance 2.0 标准版，仅国内站支持，支持15秒时长 **（最新）**
 - `jimeng-video-3.5-pro` - 专业版v3.5，国内/国际站均支持 **（默认）**
-- `jimeng-video-3.5` - 标准版v3.5，国内/国际站均支持
-- `jimeng-video-3.0-pro` - 专业版，国内/国际站均支持
+- `jimeng-video-veo3` - Veo3模型，仅亚洲国际站 (HK/JP/SG) 支持，固定8秒时长
+- `jimeng-video-veo3.1` - Veo3.1模型，仅亚洲国际站 (HK/JP/SG) 支持，固定8秒时长
+- `jimeng-video-sora2` - Sora2模型，仅亚洲国际站 (HK/JP/SG) 支持
+- `jimeng-video-3.0-pro` - 专业版，国内站和亚洲国际站 (HK/JP/SG) 支持
 - `jimeng-video-3.0` - 标准版，国内/国际站均支持
-- `jimeng-video-3.0-fast` - 极速版（仅国内站支持）
-- `jimeng-video-2.0-pro` - 专业版v2，国内/国际站均支持
-- `jimeng-video-2.0` - 标准版v2，国内/国际站均支持
+- `jimeng-video-3.0-fast` - 极速版，国内站和亚洲国际站 (HK/JP/SG) 支持
+- `jimeng-video-2.0-pro` - 专业版v2，国内站和亚洲国际站 (HK/JP/SG) 支持
+- `jimeng-video-2.0` - 标准版v2，国内站和亚洲国际站 (HK/JP/SG) 支持
+
+> **注意**: 美国站仅支持 `jimeng-video-3.5-pro` 和 `jimeng-video-3.0` 模型。
 
 **使用示例**:
 
@@ -500,26 +517,50 @@ curl -X POST http://localhost:5100/v1/videos/generations \
 
 ```
 
-### 聊天完成
+### Token API
 
-**POST** `/v1/chat/completions`
+#### Token 绑定代理功能 (新)
 
-```bash
-curl -X POST http://localhost:5100/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_SESSION_ID" \
-  -d '{
-    "model": "jimeng-4.5",
-    "messages": [
-      {
-        "role": "user",
-        "content": "画一幅山水画"
-      }
-    ]
-  }'
+**功能说明**：用户可以在 token 中嵌入代理 URL，解决因 IP 限制导致签到获取 0 积分的问题。每个账号可以绑定独立的代理。
+
+**Token 格式**：
+```
+[代理URL@][地区前缀-]session_id
+
+代理前缀在最外层，地区前缀紧跟 session_id
 ```
 
-### Token API
+**支持的代理协议**：
+- HTTP 代理: `http://host:port`
+- HTTPS 代理: `https://host:port`
+- SOCKS4 代理: `socks4://host:port`
+- SOCKS5 代理: `socks5://host:port`
+- 带认证的代理: `http://user:pass@host:port`
+
+**完整示例**：
+| 场景 | Token 格式 |
+|------|-----------|
+| 国内站，无代理 | `session_id_xxx` |
+| 美国站，无代理 | `us-session_id_xxx` |
+| 香港站，无代理 | `hk-session_id_xxx` |
+| 国内站 + SOCKS5代理 | `socks5://127.0.0.1:1080@session_id_xxx` |
+| 美国站 + HTTP代理 | `http://127.0.0.1:7890@us-session_id_xxx` |
+| 香港站 + 带认证代理 | `http://user:pass@proxy.com:8080@hk-session_id_xxx` |
+
+**API 调用示例**：
+```bash
+# 单个 token 带代理
+curl -X POST http://localhost:5100/v1/images/generations \
+  -H "Authorization: Bearer socks5://127.0.0.1:1080@us-session_id" \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "a cat", "model": "jimeng-3.0"}'
+
+# 多个 token，部分带代理
+curl -X POST http://localhost:5100/token/receive \
+  -H "Authorization: Bearer socks5://1.2.3.4:1080@us-token1,http://5.6.7.8:8080@hk-token2,token3"
+```
+
+**向后兼容**：不带代理的 token 格式完全兼容，无需修改。
 
 #### 检查Token状态
 
@@ -530,6 +571,13 @@ curl -X POST http://localhost:5100/v1/chat/completions \
 **请求参数**:
 - `token` (string): 要检查的session token
 
+**响应格式**:
+```json
+{
+  "live": true
+}
+```
+
 #### 获取积分信息
 
 **POST** `/token/points`
@@ -538,6 +586,21 @@ curl -X POST http://localhost:5100/v1/chat/completions \
 
 **请求头**:
 - `Authorization`: Bearer token，多个token用逗号分隔
+
+**响应格式**:
+```json
+[
+  {
+    "token": "your_token",
+    "points": {
+      "giftCredit": 10,
+      "purchaseCredit": 0,
+      "vipCredit": 0,
+      "totalCredit": 10
+    }
+  }
+]
+```
 
 #### 领取每日积分
 
@@ -558,10 +621,18 @@ curl -X POST http://localhost:5100/v1/chat/completions \
       "purchaseCredit": 0,
       "vipCredit": 0,
       "totalCredit": 10
-    }
+    },
+    "received": true,
+    "error": "可选的错误信息"
   }
 ]
 ```
+
+**响应字段说明**:
+- `token` (string): 处理的token
+- `credits` (object): 操作后的当前积分余额
+- `received` (boolean): 是否成功领取积分（`true` 表示已领取，`false` 表示已有积分或领取失败）
+- `error` (string, 可选): 领取失败时的错误信息
 
 **使用示例**:
 ```bash
@@ -591,71 +662,61 @@ curl -X POST http://localhost:5100/token/receive \
 }
 ```
 
-### 聊天完成响应
-```json
-{
-  "id": "chatcmpl-123",
-  "object": "chat.completion",
-  "created": 1759058768,
-  "model": "jimeng-4.5",
-  "choices": [
-    {
-      "index": 0,
-      "message": {
-        "role": "assistant",
-        "content": "![image](https://example.com/generated-image.jpg)"
-      },
-      "finish_reason": "stop"
-    }
-  ],
-  "usage": {
-    "prompt_tokens": 10,
-    "completion_tokens": 20,
-    "total_tokens": 30
-  }
-}
-```
-
-### 流式响应 (SSE)
-```
-data: {"id":"chatcmpl-123","object":"chat.completion.chunk","created":1759058768,"model":"jimeng-4.5","choices":[{"index":0,"delta":{"role":"assistant","content":"🎨 图像生成中，请稍候..."},"finish_reason":null}]}
-
-data: {"id":"chatcmpl-123","object":"chat.completion.chunk","created":1759058768,"model":"jimeng-4.5","choices":[{"index":1,"delta":{"role":"assistant","content":"![image](https://example.com/image.jpg)"},"finish_reason":"stop"}]}
-
-data: [DONE]
-```
-
 ## 🏗️ 项目架构
 
 ```
 jimeng-api/
 ├── src/
 │   ├── api/
+│   │   ├── builders/             # 请求构建器
+│   │   │   └── payload-builder.ts  # API请求负载构建
 │   │   ├── controllers/          # 控制器层
-│   │   │   ├── core.ts          # 核心功能（网络请求、文件处理）
-│   │   │   ├── images.ts        # 图像生成逻辑
-│   │   │   ├── videos.ts        # 视频生成逻辑
-│   │   │   └── chat.ts          # 聊天接口逻辑
-│   │   ├── routes/              # 路由定义
-│   │   └── consts/              # 常量定义
-│   ├── lib/                     # 核心库
-│   │   ├── configs/            # 配置加载
-│   │   ├── consts/             # 常量
-│   │   ├── exceptions/         # 异常类
-│   │   ├── interfaces/         # 接口定义
-│   │   ├── request/            # 请求处理
-│   │   ├── response/           # 响应处理
-│   │   ├── config.ts           # 配置中心
-│   │   ├── server.ts           # 服务器核心
-│   │   ├── logger.ts           # 日志记录器
-│   │   ├── error-handler.ts    # 统一错误处理
-│   │   ├── smart-poller.ts     # 智能轮询器
-│   │   └── aws-signature.ts    # AWS签名
-│   ├── daemon.ts               # 守护进程
-│   └── index.ts               # 入口文件
-├── configs/                    # 配置文件
-├── Dockerfile                 # Docker配置
-└── package.json              # 项目配置
+│   │   │   ├── core.ts           # 核心功能（网络请求、文件处理）
+│   │   │   ├── images.ts         # 图像生成逻辑
+│   │   │   └── videos.ts         # 视频生成逻辑
+│   │   ├── routes/               # 路由定义
+│   │   │   ├── index.ts          # 路由入口
+│   │   │   ├── images.ts         # 图像生成路由
+│   │   │   ├── videos.ts         # 视频生成路由
+│   │   │   ├── token.ts          # Token管理路由
+│   │   │   ├── models.ts         # 模型列表路由
+│   │   │   └── ping.ts           # 健康检查路由
+│   │   └── consts/               # 常量定义
+│   │       ├── common.ts         # 通用常量
+│   │       ├── dreamina.ts       # Dreamina站点常量
+│   │       └── exceptions.ts     # 异常常量
+│   ├── lib/                      # 核心库
+│   │   ├── configs/              # 配置加载
+│   │   │   ├── service-config.ts # 服务配置
+│   │   │   └── system-config.ts  # 系统配置
+│   │   ├── consts/               # 常量
+│   │   ├── exceptions/           # 异常类
+│   │   │   ├── Exception.ts      # 基础异常
+│   │   │   └── APIException.ts   # API异常
+│   │   ├── request/              # 请求处理
+│   │   │   └── Request.ts        # 请求封装
+│   │   ├── response/             # 响应处理
+│   │   │   ├── Response.ts       # 响应封装
+│   │   │   ├── Body.ts           # 响应体基类
+│   │   │   ├── SuccessfulBody.ts # 成功响应体
+│   │   │   └── FailureBody.ts    # 失败响应体
+│   │   ├── config.ts             # 配置中心
+│   │   ├── server.ts             # 服务器核心
+│   │   ├── logger.ts             # 日志记录器
+│   │   ├── error-handler.ts      # 统一错误处理
+│   │   ├── smart-poller.ts       # 智能轮询器
+│   │   ├── aws-signature.ts      # AWS签名
+│   │   ├── environment.ts        # 环境变量处理
+│   │   ├── initialize.ts         # 初始化逻辑
+│   │   ├── http-status-codes.ts  # HTTP状态码常量
+│   │   ├── image-uploader.ts     # 图片上传工具
+│   │   ├── image-utils.ts        # 图片处理工具
+│   │   ├── region-utils.ts       # 区域处理工具
+│   │   └── util.ts               # 通用工具函数
+│   └── index.ts                  # 入口文件
+├── configs/                      # 配置文件
+├── Dockerfile                    # Docker配置
+└── package.json                  # 项目配置
 ```
 
 ## 🔧 核心组件
@@ -709,9 +770,9 @@ export const RETRY_CONFIG = {
    - 检查Sessionid格式是否正确
 
 3. **生成超时**
-   - 图像生成：通常1-3分钟
-   - 视频生成：通常3-15分钟
-   - 系统会自动处理超时情况
+   - 图像生成：最长等待 15 分钟（高峰期可能需要排队）
+   - 视频生成：最长等待 20 分钟
+   - 系统会自动处理超时情况，超时后会返回错误信息
 
 4. **积分不足**
    - 前往即梦/dreamina官网查看积分余额
