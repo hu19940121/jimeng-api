@@ -6,6 +6,9 @@ import { apiService } from '../services/api.service'
 
 const STORAGE_KEY = 'jimeng_settings'
 
+// 默认 API 地址：使用当前页面 origin（兼容 Nginx 反向代理统一入口部署）
+const DEFAULT_API_BASE_URL = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5100'
+
 interface StoredSettings {
   apiBaseUrl: string
   sessionId: string
@@ -14,7 +17,7 @@ interface StoredSettings {
 
 export const useSettingsStore = defineStore('settings', () => {
   // State
-  const apiBaseUrl = ref('http://localhost:5100')
+  const apiBaseUrl = ref(DEFAULT_API_BASE_URL)
   const sessionId = ref('')
   const region = ref<Region>('cn')
 
@@ -45,7 +48,7 @@ export const useSettingsStore = defineStore('settings', () => {
       const stored = localStorage.getItem(STORAGE_KEY)
       if (stored) {
         const parsed: StoredSettings = JSON.parse(stored)
-        apiBaseUrl.value = parsed.apiBaseUrl || 'http://localhost:5100'
+        apiBaseUrl.value = parsed.apiBaseUrl || DEFAULT_API_BASE_URL
         sessionId.value = parsed.sessionId || ''
         region.value = parsed.region || 'cn'
       }
@@ -72,7 +75,7 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   function clearConfig() {
-    apiBaseUrl.value = 'http://localhost:5100'
+    apiBaseUrl.value = DEFAULT_API_BASE_URL
     sessionId.value = ''
     region.value = 'cn'
     localStorage.removeItem(STORAGE_KEY)

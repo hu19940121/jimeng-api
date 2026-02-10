@@ -124,7 +124,7 @@ const durationOptions = computed(() => {
 // 当模型变化时，确保当前 duration 值在可选范围内
 watch(model, (newModel) => {
   const options = getModelDurationOptions(newModel)
-  if (!options.includes(duration.value)) {
+  if (!options.includes(duration.value) && options[0] !== undefined) {
     duration.value = options[0]
   }
 })
@@ -378,7 +378,7 @@ async function handleGenerate() {
           v-if="durationOptions.length === 1"
           class="py-3 px-4 rounded-lg border-2 border-blue-500 bg-blue-50 text-blue-700 font-medium text-center"
         >
-          {{ durationOptions[0].label }}（固定）
+          {{ durationOptions[0]?.label }}（固定）
         </div>
         <!-- 可选时长按钮组 -->
         <div v-else :class="['grid gap-3', durationOptions.length <= 2 ? 'grid-cols-2' : 'grid-cols-3']">

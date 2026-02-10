@@ -1,4 +1,7 @@
 services:
+  # ============================================
+  # API 后端服务
+  # ============================================
   jimeng-api:
     # 使用 GHCR 上的镜像（生产环境）
     # image: ghcr.io/iptag/jimeng-api:latest
@@ -9,8 +12,10 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
-    ports:
-      - "5200:5100"
+    # API 不再需要对外暴露端口，由 Nginx 统一代理
+    # 如需直接访问 API，可取消注释以下配置
+    # ports:
+    #   - "5200:5100"
     volumes:
      # 挂载日志目录（确保权限正确）
      - ./logs:/app/logs
@@ -27,4 +32,33 @@ services:
       driver: "json-file"
       options:
         max-size: "10m"
+        max-file: "3"
+
+  # ============================================
+  # Web UI 前端服务（Nginx 托管 + API 反向代理）
+  # ============================================
+  jimeng-web-ui:
+    container_name: jimeng-web-ui
+    image: jimeng-web-ui:latest
+    build:
+      context: ./jimeng-web-ui
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      # 统一入口端口：访问 http://localhost:5200 即可使用 Web UI + API
+      - "5200:80"
+    depends_on:
+      jimeng-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:80/"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    # 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
         max-file: "3"

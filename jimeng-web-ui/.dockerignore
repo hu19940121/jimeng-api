@@ -1,0 +1,9 @@
+node_modules
+dist
+*.log
+.git
+.gitignore
+.DS_Store
+*.md
+!postcss.config.js
+!tailwind.config.js
