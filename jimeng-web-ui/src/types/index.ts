@@ -48,7 +48,7 @@ export interface VideoGenerationRequest {
   prompt: string
   ratio?: string
   resolution?: string
-  duration?: 5 | 10
+  duration?: number
   file_paths?: string[]
 }
 

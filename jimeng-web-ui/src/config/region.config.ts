@@ -18,6 +18,10 @@ export interface ModelInfo {
     // 仅在特定区域生效
     regions?: Region[]
   }[]
+  // 视频模型：可选的时长选项
+  durationOptions?: number[]
+  // 视频模型：是否支持 resolution 参数（720p/1080p）
+  supportsResolution?: boolean
 }
 
 // 分辨率选项
@@ -49,8 +53,8 @@ export const IMAGE_MODELS: ModelInfo[] = [
   {
     id: 'jimeng-4.1',
     name: 'Jimeng 4.1',
-    description: '支持2k/4k全部比例及智能比例',
-    regions: ['cn'],
+    description: '支持2k/4k全部比例及智能比例，全站通用',
+    regions: ['cn', 'us', 'hk', 'jp', 'sg'],
     type: 'image',
     supportsIntelligentRatio: true
   },
@@ -123,39 +127,103 @@ export const IMAGE_MODELS: ModelInfo[] = [
 // ==================== 视频生成模型 ====================
 export const VIDEO_MODELS: ModelInfo[] = [
   {
+    id: 'jimeng-video-4.0-pro',
+    name: 'Seedance 2.0 Pro',
+    description: 'Seedance 2.0 专业版，支持15s时长',
+    regions: ['cn'],
+    type: 'video',
+    durationOptions: [5, 10, 15],
+    supportsResolution: false
+  },
+  {
+    id: 'jimeng-video-4.0',
+    name: 'Seedance 2.0',
+    description: 'Seedance 2.0 标准版，支持15s时长',
+    regions: ['cn'],
+    type: 'video',
+    durationOptions: [5, 10, 15],
+    supportsResolution: false
+  },
+  {
+    id: 'jimeng-video-3.5-pro',
+    name: 'Jimeng Video 3.5 Pro',
+    description: '专业版 v3.5，全站通用（默认）',
+    regions: ['cn', 'us', 'hk', 'jp', 'sg'],
+    type: 'video',
+    durationOptions: [5, 10, 12],
+    supportsResolution: false
+  },
+  {
+    id: 'jimeng-video-veo3',
+    name: 'Veo3',
+    description: 'Veo3 模型，固定8s时长，亚洲国际站专属',
+    regions: ['hk', 'jp', 'sg'],
+    type: 'video',
+    durationOptions: [8],
+    supportsResolution: false
+  },
+  {
+    id: 'jimeng-video-veo3.1',
+    name: 'Veo3.1',
+    description: 'Veo3.1 模型，固定8s时长，亚洲国际站专属',
+    regions: ['hk', 'jp', 'sg'],
+    type: 'video',
+    durationOptions: [8],
+    supportsResolution: false
+  },
+  {
+    id: 'jimeng-video-sora2',
+    name: 'Sora2',
+    description: 'Sora2 模型，亚洲国际站专属',
+    regions: ['hk', 'jp', 'sg'],
+    type: 'video',
+    durationOptions: [4, 8, 12],
+    supportsResolution: false
+  },
+  {
     id: 'jimeng-video-3.0-pro',
     name: 'Jimeng Video 3.0 Pro',
-    description: '专业版，最高质量',
-    regions: ['cn', 'us', 'hk', 'jp', 'sg'],
-    type: 'video'
+    description: '专业版，国内站及亚洲国际站',
+    regions: ['cn', 'hk', 'jp', 'sg'],
+    type: 'video',
+    durationOptions: [5, 10],
+    supportsResolution: false
   },
   {
     id: 'jimeng-video-3.0',
     name: 'Jimeng Video 3.0',
-    description: '标准版，平衡质量与速度',
+    description: '标准版，全站通用',
     regions: ['cn', 'us', 'hk', 'jp', 'sg'],
-    type: 'video'
+    type: 'video',
+    durationOptions: [5, 10],
+    supportsResolution: true
   },
   {
     id: 'jimeng-video-3.0-fast',
     name: 'Jimeng Video 3.0 Fast',
-    description: '极速版，仅国内站支持',
-    regions: ['cn'],
-    type: 'video'
+    description: '极速版，国内站及亚洲国际站',
+    regions: ['cn', 'hk', 'jp', 'sg'],
+    type: 'video',
+    durationOptions: [5, 10],
+    supportsResolution: true
   },
   {
     id: 'jimeng-video-2.0-pro',
     name: 'Jimeng Video 2.0 Pro',
-    description: '专业版v2',
-    regions: ['cn', 'us', 'hk', 'jp', 'sg'],
-    type: 'video'
+    description: '专业版 v2，国内站及亚洲国际站',
+    regions: ['cn', 'hk', 'jp', 'sg'],
+    type: 'video',
+    durationOptions: [5, 10],
+    supportsResolution: false
   },
   {
     id: 'jimeng-video-2.0',
     name: 'Jimeng Video 2.0',
-    description: '标准版v2',
-    regions: ['cn', 'us', 'hk', 'jp', 'sg'],
-    type: 'video'
+    description: '标准版 v2，国内站及亚洲国际站',
+    regions: ['cn', 'hk', 'jp', 'sg'],
+    type: 'video',
+    durationOptions: [5, 10],
+    supportsResolution: false
   }
 ]
 
@@ -201,12 +269,13 @@ export const DEFAULT_IMAGE_MODEL: Record<Region, string> = {
   sg: 'jimeng-4.5'
 }
 
+// 默认视频模型改为 jimeng-video-3.5-pro（README 标记为 Default）
 export const DEFAULT_VIDEO_MODEL: Record<Region, string> = {
-  cn: 'jimeng-video-3.0',
-  us: 'jimeng-video-3.0',
-  hk: 'jimeng-video-3.0',
-  jp: 'jimeng-video-3.0',
-  sg: 'jimeng-video-3.0'
+  cn: 'jimeng-video-3.5-pro',
+  us: 'jimeng-video-3.5-pro',
+  hk: 'jimeng-video-3.5-pro',
+  jp: 'jimeng-video-3.5-pro',
+  sg: 'jimeng-video-3.5-pro'
 }
 
 // ==================== 工具函数 ====================
@@ -261,6 +330,22 @@ export function getDefaultImageModel(region: Region): string {
  */
 export function getDefaultVideoModel(region: Region): string {
   return DEFAULT_VIDEO_MODEL[region]
+}
+
+/**
+ * 获取视频模型的可用时长选项
+ */
+export function getModelDurationOptions(modelId: string): number[] {
+  const model = VIDEO_MODELS.find(m => m.id === modelId)
+  return model?.durationOptions ?? [5, 10]
+}
+
+/**
+ * 检查视频模型是否支持分辨率参数
+ */
+export function modelSupportsResolution(modelId: string): boolean {
+  const model = VIDEO_MODELS.find(m => m.id === modelId)
+  return model?.supportsResolution ?? false
 }
 
 /**

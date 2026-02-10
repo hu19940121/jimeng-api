@@ -9,10 +9,12 @@ import {
   PromptInput,
   ModelSelector,
   RatioSelector,
+  ResolutionSelector,
   ImageUploader,
   VideoPlayer,
   GenerationProgress
 } from '../components/generation'
+import { getModelDurationOptions, modelSupportsResolution, getDefaultVideoModel } from '../config'
 import type { AppError } from '../services/api.service'
 
 interface UploadedImage {
@@ -48,9 +50,10 @@ const savedState = loadFormState()
 // Form state
 const mode = ref<VideoMode>(savedState.mode || 'text-to-video')
 const prompt = ref('')
-const model = ref(savedState.model || 'jimeng-video-3.0')
+const model = ref(savedState.model || getDefaultVideoModel(settingsStore.region))
 const ratio = ref(savedState.ratio || '16:9')
-const duration = ref<5 | 10>(savedState.duration || 5)
+const resolution = ref(savedState.resolution || '720p')
+const duration = ref<number>(savedState.duration || 5)
 const firstFrameImages = ref<UploadedImage[]>([])
 const lastFrameImages = ref<UploadedImage[]>([])
 
@@ -60,13 +63,14 @@ function saveFormState() {
     mode: mode.value,
     model: model.value,
     ratio: ratio.value,
+    resolution: resolution.value,
     duration: duration.value
   }
   localStorage.setItem(FORM_STATE_KEY, JSON.stringify(state))
 }
 
 // 监听表单变化，自动保存
-watch([mode, model, ratio, duration], () => {
+watch([mode, model, ratio, resolution, duration], () => {
   saveFormState()
 })
 
@@ -87,9 +91,12 @@ onMounted(() => {
   if (route.query.ratio) {
     ratio.value = String(route.query.ratio)
   }
+  if (route.query.resolution) {
+    resolution.value = String(route.query.resolution)
+  }
   if (route.query.duration) {
     const d = parseInt(String(route.query.duration))
-    if (d === 5 || d === 10) {
+    if (!isNaN(d)) {
       duration.value = d
     }
   }
@@ -105,11 +112,27 @@ const modeOptions = [
   { value: 'first-last-frame', label: '首尾帧生成' }
 ]
 
-// Duration options
-const durationOptions = [
-  { value: 5, label: '5 秒' },
-  { value: 10, label: '10 秒' }
-]
+// 根据当前模型动态计算时长选项
+const durationOptions = computed(() => {
+  const options = getModelDurationOptions(model.value)
+  return options.map(d => ({
+    value: d,
+    label: `${d} 秒`
+  }))
+})
+
+// 当模型变化时，确保当前 duration 值在可选范围内
+watch(model, (newModel) => {
+  const options = getModelDurationOptions(newModel)
+  if (!options.includes(duration.value)) {
+    duration.value = options[0]
+  }
+})
+
+// 当前模型是否支持分辨率参数
+const currentModelSupportsResolution = computed(() => {
+  return modelSupportsResolution(model.value)
+})
 
 // 当前类型的状态
 const taskState = computed(() => generationStore.videoState)
@@ -138,7 +161,13 @@ const canGenerate = computed(() => {
   return false
 })
 
-
+// 监听区域变化，更新默认模型
+watch(
+  () => settingsStore.region,
+  (newRegion) => {
+    model.value = getDefaultVideoModel(newRegion)
+  }
+)
 
 // Clear frames when mode changes
 watch(mode, () => {
@@ -200,11 +229,15 @@ async function handleGenerate() {
       }
     }
 
+    // 仅在模型支持时传递 resolution 参数
+    const videoResolution = currentModelSupportsResolution.value ? resolution.value : undefined
+
     const response = await apiService.generateVideo(
       {
         model: model.value,
         prompt: prompt.value,
         ratio: ratio.value,
+        resolution: videoResolution,
         duration: duration.value
       },
       firstFrame,
@@ -220,6 +253,7 @@ async function handleGenerate() {
       params: {
         model: model.value,
         ratio: ratio.value,
+        resolution: videoResolution,
         duration: duration.value,
         mode: mode.value
       },
@@ -316,12 +350,38 @@ async function handleGenerate() {
         </div>
       </div>
 
+      <!-- Resolution Selector (仅当模型支持时显示) -->
+      <div v-if="currentModelSupportsResolution">
+        <ResolutionSelector
+          v-model="resolution"
+          type="video"
+          :disabled="isLoading"
+        />
+      </div>
+      <!-- Resolution Not Supported Hint -->
+      <div
+        v-else
+        class="p-2 bg-gray-50 border border-gray-200 rounded-lg"
+      >
+        <p class="text-xs text-gray-500">
+          ℹ️ 当前模型不支持自定义分辨率参数（仅 Jimeng Video 3.0 / 3.0 Fast 支持 720p/1080p）
+        </p>
+      </div>
+
       <!-- Duration Selector -->
       <div>
         <label class="block mb-2 text-sm font-medium text-gray-700">
           视频时长
         </label>
-        <div class="grid grid-cols-2 gap-3">
+        <!-- 固定时长提示 -->
+        <div
+          v-if="durationOptions.length === 1"
+          class="py-3 px-4 rounded-lg border-2 border-blue-500 bg-blue-50 text-blue-700 font-medium text-center"
+        >
+          {{ durationOptions[0].label }}（固定）
+        </div>
+        <!-- 可选时长按钮组 -->
+        <div v-else :class="['grid gap-3', durationOptions.length <= 2 ? 'grid-cols-2' : 'grid-cols-3']">
           <button
             v-for="option in durationOptions"
             :key="option.value"
@@ -334,7 +394,7 @@ async function handleGenerate() {
                 : 'border-gray-200 text-gray-700 hover:border-gray-300',
               isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
             ]"
-            @click="duration = option.value as 5 | 10"
+            @click="duration = option.value"
           >
             {{ option.label }}
           </button>

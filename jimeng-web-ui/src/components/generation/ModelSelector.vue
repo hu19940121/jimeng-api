@@ -89,13 +89,22 @@ const handleSelect = (modelId: string) => {
 // 获取推荐标签
 function getRecommendedTag(model: ModelInfo): string | null {
   if (model.id === 'jimeng-4.5') return '推荐'
-  if (model.id === 'jimeng-video-3.0') return '推荐'
+  if (model.id === 'jimeng-video-3.5-pro') return '推荐'
+  return null
+}
+
+// 获取最新标签
+function getLatestTag(model: ModelInfo): string | null {
+  if (model.id === 'jimeng-video-4.0-pro' || model.id === 'jimeng-video-4.0') return '最新'
   return null
 }
 
 // 获取特殊标签（如国际站专属）
 function getSpecialTag(model: ModelInfo): string | null {
   if (model.id.startsWith('nanobanana')) return '国际站专属'
+  // 仅支持亚洲国际站的模型
+  const asiaOnlyIds = ['jimeng-video-veo3', 'jimeng-video-veo3.1', 'jimeng-video-sora2']
+  if (asiaOnlyIds.includes(model.id)) return '亚洲国际站专属'
   if (model.regions.length === 1 && model.regions[0] === 'cn') return '国内站专属'
   return null
 }
@@ -156,6 +165,13 @@ function getSpecialTag(model: ModelInfo): string | null {
               class="px-1.5 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded"
             >
               {{ getRecommendedTag(model) }}
+            </span>
+            <!-- 最新标签 -->
+            <span
+              v-if="getLatestTag(model)"
+              class="px-1.5 py-0.5 text-xs font-medium bg-orange-100 text-orange-700 rounded"
+            >
+              {{ getLatestTag(model) }}
             </span>
             <!-- 特殊标签 -->
             <span
