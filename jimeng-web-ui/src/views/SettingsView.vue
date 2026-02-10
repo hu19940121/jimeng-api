@@ -147,8 +147,8 @@ async function handleGenerateSession() {
           <div class="space-y-3">
             <BaseInput v-model="sessionId" label="Session ID" placeholder="请输入您的 Session ID" type="text" />
             
-            <!-- 只在非国内站显示自动获取按钮 -->
-            <div v-if="region !== 'cn'">
+            <!-- 只在美区显示自动获取按钮（仅美区注册后可获得免费积分） -->
+            <div v-if="region === 'us'">
               <div class="flex items-center gap-3 mb-3">
                 <BaseButton 
                   variant="outline" 
@@ -175,14 +175,15 @@ async function handleGenerateSession() {
               </div>
               
               <div class="text-xs text-gray-500 space-y-1">
-                <p>• 点击"自动获取 Session ID"按钮可自动生成新的会话令牌</p>
+                <p>• 点击"自动获取 Session ID"按钮可自动注册美区账号并获取会话令牌</p>
                 <p>• 当生图或生视频提示额度不够时，请重新获取 Session ID</p>
+                <p>• ⚠️ 需要 jimeng-api 服务端能通过美国代理节点访问 dreamina.capcut.com</p>
               </div>
             </div>
             
-            <!-- 国内站提示 -->
+            <!-- 非美区提示 -->
             <div v-else class="text-xs text-gray-500">
-              <p>• 请手动输入 Session ID</p>
+              <p>• 请手动输入 Session ID（自动获取功能仅支持美区）</p>
               <p>• 当生图或生视频提示额度不够时，请重新获取 Session ID</p>
             </div>
           </div>

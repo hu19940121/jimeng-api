@@ -170,8 +170,8 @@ watch(
                   placeholder="Enter your Session ID"
                 />
                 
-                <!-- Generate Session Button (只在非国内站显示) -->
-                <div v-if="settingsStore.region !== 'cn'">
+                <!-- Generate Session Button (仅美区可用) -->
+                <div v-if="settingsStore.region === 'us'">
                   <button
                     type="button"
                     :disabled="isGeneratingSession"
@@ -197,13 +197,13 @@ watch(
                   </Transition>
                   
                   <p class="text-xs text-gray-500">
-                    点击按钮自动生成新的 Session ID，或手动输入
+                    点击按钮自动注册美区账号并获取 Session ID（需美国代理节点），或手动输入
                   </p>
                 </div>
                 
-                <!-- 国内站提示 -->
+                <!-- 非美区提示 -->
                 <p v-else class="text-xs text-gray-500">
-                  请手动输入 Session ID
+                  请手动输入 Session ID（自动获取功能仅支持美区）
                 </p>
               </div>
 
