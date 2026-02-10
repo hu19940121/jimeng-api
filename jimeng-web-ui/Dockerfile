@@ -17,7 +17,11 @@ RUN npm ci --registry https://registry.npmmirror.com/
 # 复制源代码
 COPY . .
 
-# 构建生产产物
+# 接收访问密码参数（构建时通过 --build-arg 传入）
+ARG VITE_ACCESS_PASSWORD=""
+ENV VITE_ACCESS_PASSWORD=${VITE_ACCESS_PASSWORD}
+
+# 构建生产产物（VITE_ 前缀的环境变量会被 Vite 注入到代码中）
 RUN npm run build
 
 # ---------- 阶段二：Nginx 托管 + 反向代理 ----------

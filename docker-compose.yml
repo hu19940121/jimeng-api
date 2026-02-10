@@ -43,6 +43,10 @@ services:
     build:
       context: ./jimeng-web-ui
       dockerfile: Dockerfile
+      args:
+        # 访问密码：通过环境变量或 .env 文件设置
+        # 示例: ACCESS_PASSWORD=mypassword docker compose up -d --build
+        VITE_ACCESS_PASSWORD: ${ACCESS_PASSWORD:-}
     restart: unless-stopped
     ports:
       # 统一入口端口：访问 http://localhost:5200 即可使用 Web UI + API
